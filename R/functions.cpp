@@ -5,12 +5,13 @@ using namespace Rcpp;
 
 
 // [[Rcpp::export]]
-int valSearch(const NumericVector& vals, const NumericVector& order,int val,bool low) {
+int valSearch(const NumericVector& vals, const IntegerVector& order,int val,bool low) {
     int start=0;
     int end=order.size()-1;
     int out;
 
     while(true) {
+       // std::cout << start << "<---------->" << end << std::endl;
        int mid=(start+end)/2;
 
         if(val > vals[order[mid]-1]) {
@@ -46,7 +47,7 @@ int valSearch(const NumericVector& vals, const NumericVector& order,int val,bool
 
 // [[Rcpp::export]]
 List searchvalsL(const NumericVector& vals
-        ,const NumericVector& order
+        ,const IntegerVector& order
         ,const double val, const double tol) {
     int min = valSearch(vals,order,val*(1-tol),true);
     int max = valSearch(vals,order,val*(1+tol),false);
@@ -60,10 +61,14 @@ List searchvalsL(const NumericVector& vals
 
 // [[Rcpp::export]]
 std::set<int> searchVals(const NumericVector& vals
-        ,const NumericVector& order
+        ,const IntegerVector& order
         ,const double val, const double tol,int maxValues) {
-    int min = valSearch(vals,order,val*(1-tol),true);
-    int max = valSearch(vals,order,val*(1+tol),false);
+    int sign=1;
+    if(val<0)
+        sign=-1;
+    int min = valSearch(vals,order,sign*val*(1-tol),true);
+    int max = valSearch(vals,order,sign*val*(1+tol),false);
+    
 
     int count=max-min+1;
     if(count > maxValues) {
@@ -72,8 +77,8 @@ std::set<int> searchVals(const NumericVector& vals
         max=max-extra;
     }
     
-    const NumericVector::const_iterator it1 = order.begin() + (min-1);
-    const NumericVector::const_iterator it2 = order.begin() + (max-1);
+    const IntegerVector::const_iterator it1 = order.begin() + (min-1);
+    const IntegerVector::const_iterator it2 = order.begin() + (max-1);
     
     return std::set<int>(it1,it2);
 }
@@ -89,10 +94,48 @@ void searchMe(const DataFrame& a,const DataFrame& b,List tolerances,List namemap
   std::set<int> matchedPos;
   std::pair<int,int> minmax;
   
-  NumericVector&& vals = a["a1"];
-  NumericVector&& order = a["a1.order"];
+  std::vector<std::vector<int>> out2;
 
+  StringVector n1 = namemapping.names();
+  int inrows=b.nrows();
+  for(int rowid=0; rowid<inrows; rowid++) {
+      std::cout << "Id : " << rowid << std::endl;
+      std::set<int> allmatches;
+
+      bool isfirstcheck=true;
+       
+      for(String x:n1) {
+          //std::cout << "col : " << std::string(x) << std::endl;
+          std::string y=x;
+          NumericVector&& vals = a[y];
+          IntegerVector&& order = a[y+".order"];
+          String inname = namemapping[x];
+          NumericVector&& valsin = b[inname];
+          double searchVal= valsin[rowid];
+          double tol = tolerances[x];
+          //std::cout << "searchval" << searchVal << std::endl;
+          std::set<int> out = searchVals(vals,order,searchVal,tol,500);
+          if(isfirstcheck) {
+              allmatches=out;
+          }
+          else {
+              std::vector<int> zz;
+              std::set_intersection (allmatches.begin(),allmatches.end()
+                      , out.begin(), out.end(), std::back_inserter(zz));
+              allmatches.clear();
+              for(int x:zz) {
+                  allmatches.insert(x);
+              }
+          }
+          std::cout << "Size out is " << allmatches.size() << std::endl;
+          //std::cout << "done row " << rowid << " for "  << std::string(x) << std::endl;
+          isfirstcheck=false;
+      }
+  }
+   
 
 }
+
+//searchMe(a,b,tolerances,namemapping)
 
 

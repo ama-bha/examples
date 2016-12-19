@@ -36,7 +36,7 @@ tolerances = list()
 namemapping = list()
 
 for(cname in columns_to_be_ordered){
-    tolerances[[cname]]=0.1
+    tolerances[[cname]]=0.5
 }
 
 namemapping$a1="b1"

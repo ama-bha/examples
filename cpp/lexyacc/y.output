@@ -1,0 +1,145 @@
+Terminals unused in grammar
+
+   TAG
+   DOUBLE
+   WS
+   QUOTE
+   LSBRACE
+   RSBRACE
+
+
+Grammar
+
+    0 $accept: expr $end
+
+    1 expr: WORD LCBRACE assnlist RCBRACE
+
+    2 assnlist: %empty
+    3         | assn assnlist
+
+    4 assn: WORD EQUALS NUMBER
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+NUMBER (258) 4
+TAG (259)
+DOUBLE (260)
+WS (261)
+QUOTE (262)
+LCBRACE (263) 1
+LSBRACE (264)
+RCBRACE (265) 1
+RSBRACE (266)
+WORD (267) 1 4
+EQUALS (268) 4
+
+
+Nonterminals, with rules where they appear
+
+$accept (14)
+    on left: 0
+expr (15)
+    on left: 1, on right: 0
+assnlist (16)
+    on left: 2 3, on right: 1 3
+assn (17)
+    on left: 4, on right: 3
+
+
+State 0
+
+    0 $accept: . expr $end
+
+    WORD  shift, and go to state 1
+
+    expr  go to state 2
+
+
+State 1
+
+    1 expr: WORD . LCBRACE assnlist RCBRACE
+
+    LCBRACE  shift, and go to state 3
+
+
+State 2
+
+    0 $accept: expr . $end
+
+    $end  shift, and go to state 4
+
+
+State 3
+
+    1 expr: WORD LCBRACE . assnlist RCBRACE
+
+    WORD  shift, and go to state 5
+
+    $default  reduce using rule 2 (assnlist)
+
+    assnlist  go to state 6
+    assn      go to state 7
+
+
+State 4
+
+    0 $accept: expr $end .
+
+    $default  accept
+
+
+State 5
+
+    4 assn: WORD . EQUALS NUMBER
+
+    EQUALS  shift, and go to state 8
+
+
+State 6
+
+    1 expr: WORD LCBRACE assnlist . RCBRACE
+
+    RCBRACE  shift, and go to state 9
+
+
+State 7
+
+    3 assnlist: assn . assnlist
+
+    WORD  shift, and go to state 5
+
+    $default  reduce using rule 2 (assnlist)
+
+    assnlist  go to state 10
+    assn      go to state 7
+
+
+State 8
+
+    4 assn: WORD EQUALS . NUMBER
+
+    NUMBER  shift, and go to state 11
+
+
+State 9
+
+    1 expr: WORD LCBRACE assnlist RCBRACE .
+
+    $default  reduce using rule 1 (expr)
+
+
+State 10
+
+    3 assnlist: assn assnlist .
+
+    $default  reduce using rule 3 (assnlist)
+
+
+State 11
+
+    4 assn: WORD EQUALS NUMBER .
+
+    $default  reduce using rule 4 (assn)

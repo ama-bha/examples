@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Sql Format Toolr</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<script>
+$(document).ready(function(){
+    $( "#sqlform" ).submit(function( event ) {
+    var url = "/output"; // the script where you handle the form input.
+
+    $.ajax({
+           type: "POST",
+           url: url,
+           data: $("#sqlform").serialize(), // serializes the form's elements.
+           success: function(data)
+           {
+	       var obj=	$("#hello").val(data)
+           }
+         });
+      event.preventDefault();
+    });
+});
+</script>
+
+</head>
+<body>
+
+<div class="container">
+  <h2>Sql Format Tool</h2>
+  <p>Please enter sql below:</p>
+
+  <form action="/output" method="post" id="sqlform">>
+    <label for="sql">Sql</label>
+    <textarea id="hello" class="form-control" rows="5" name="sql"></textarea>
+    <input type="submit" value="Submit">
+  </form> 
+  <div id="output"></div>
+
+</div>
+
+</body>
+</html>

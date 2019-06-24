@@ -1,0 +1,26 @@
+(defun util/toml-current-section ()
+  "gets the name of current toml section"
+  (interactive "")
+
+  (let (p1 p2 section key)
+  (save-excursion
+    (re-search-backward "^[ \t]*\\[")
+    (search-forward "[")
+     (setq p1 (point) )
+     (re-search-forward "\\][ \t]*$")
+     (setq p2 (point))
+     )
+  
+  (setq section (buffer-substring-no-properties p1 (1- p2) ))
+
+  (save-excursion
+    (beginning-of-line)
+    (setq p1 (point))
+    (re-search-forward "=")
+    (setq p2 (1- (point)))
+     
+    )
+   (setq key (s-trim (buffer-substring-no-properties p1 p2 )))
+   (s-replace "." "`" (s-join "." (list section key)))
+  )
+  )
